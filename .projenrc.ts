@@ -110,8 +110,6 @@ if (nextAppPackageJson) {
   });
 }
 
-project.synth();
-
 project.github?.addWorkflow('deploy', {
   on: {
     push: {
@@ -149,3 +147,5 @@ project.github?.addWorkflow('deploy', {
     },
   },
 });
+
+project.synth();

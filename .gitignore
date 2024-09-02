@@ -48,4 +48,5 @@ jspm_packages/
 .cdk.staging/
 .parcel-cache/
 !/.github/workflows/weekly-upgrade.yml
+!/.github/workflows/deploy.yml
 !/.projenrc.ts

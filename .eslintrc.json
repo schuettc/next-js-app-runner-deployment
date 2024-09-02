@@ -224,15 +224,6 @@
   "overrides": [
     {
       "files": [
-        "src/resources/**/*.ts"
-      ],
-      "rules": {
-        "indent": "off",
-        "@typescript-eslint/indent": "off"
-      }
-    },
-    {
-      "files": [
         ".projenrc.ts"
       ],
       "rules": {

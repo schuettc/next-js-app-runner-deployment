@@ -142,14 +142,6 @@
         }
       ]
     },
-    "launch": {
-      "name": "launch",
-      "steps": [
-        {
-          "exec": "yarn cdk deploy --require-approval never"
-        }
-      ]
-    },
     "package": {
       "name": "package",
       "description": "Creates the distribution package"
@@ -234,7 +226,7 @@
       "name": "upgrade:nextjs",
       "steps": [
         {
-          "exec": "cd src/resources/app && yarn upgrade --latest"
+          "exec": "cd src/resources/app && yarn upgrade --latest && yarn add next@latest react@latest react-dom@latest && yarn add --dev @types/react@latest @types/react-dom@latest @types/node@latest && cd ../../.."
         }
       ]
     },

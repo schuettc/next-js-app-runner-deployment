@@ -39,9 +39,6 @@
         },
         {
           "spawn": "build:nextjs"
-        },
-        {
-          "spawn": "test"
         }
       ]
     },

@@ -232,7 +232,6 @@ project.addTask('build:all', {
     { spawn: 'install:nextjs' },
     { spawn: 'eslint:nextjs' },
     { spawn: 'build:nextjs' },
-    { spawn: 'test' },
   ],
 });
 

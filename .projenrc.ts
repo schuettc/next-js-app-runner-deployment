@@ -134,6 +134,11 @@ deploy?.addJobs({
           'node-version': '18',
         },
       },
+      { run: 'yarn install --frozen-lockfile' },
+      {
+        name: 'Install dependencies',
+        run: 'yarn install --frozen-lockfile',
+      },
       {
         uses: 'aws-actions/configure-aws-credentials@v4',
         with: {

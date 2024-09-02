@@ -41,6 +41,55 @@ project.addTask('upgrade:all', {
   exec: 'npx projen upgrade && yarn upgrade:nextjs',
 });
 
+// Add a new workflow for upgrading the Next.js app
+const upgradeNextjs = project.github?.addWorkflow('upgrade-nextjs');
+upgradeNextjs?.on({
+  schedule: [{ cron: '0 5 * * 1' }], // Run at 5:00 AM every Monday
+  workflow_dispatch: {}, // Allow manual triggering
+});
+
+upgradeNextjs?.addJobs({
+  upgrade: {
+    runsOn: ['ubuntu-latest'],
+    permissions: {
+      contents: JobPermission.WRITE,
+      pullRequests: JobPermission.WRITE,
+    },
+    steps: [
+      { uses: 'actions/checkout@v4' },
+      {
+        uses: 'actions/setup-node@v4',
+        with: {
+          'node-version': '18',
+        },
+      },
+      { run: 'yarn install --frozen-lockfile' },
+      {
+        name: 'Upgrade Next.js app dependencies',
+        run: 'yarn upgrade:nextjs',
+      },
+      {
+        name: 'Check for changes',
+        id: 'git-check',
+        run: 'git diff --exit-code || echo "changes=true" >> $GITHUB_OUTPUT',
+      },
+      {
+        name: 'Create Pull Request',
+        if: "steps.git-check.outputs.changes == 'true'",
+        uses: 'peter-evans/create-pull-request@v6',
+        with: {
+          'token': '${{ secrets.GITHUB_TOKEN }}',
+          'commit-message': 'chore: upgrade Next.js app dependencies',
+          'branch': 'deps/upgrade-nextjs',
+          'title': 'chore: upgrade Next.js app dependencies',
+          'body': 'This PR upgrades the dependencies for the Next.js app.',
+          'labels': 'dependencies,nextjs',
+        },
+      },
+    ],
+  },
+});
+
 const nextAppPackageJson = project.tryFindObjectFile(
   'src/resources/app/package.json',
 );

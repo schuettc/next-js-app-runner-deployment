@@ -224,47 +224,6 @@
   "overrides": [
     {
       "files": [
-        "src/resources/app/src/**/*.ts",
-        "src/resources/app/src/**/*.tsx"
-      ],
-      "extends": [
-        "plugin:react/recommended",
-        "plugin:@typescript-eslint/recommended",
-        "plugin:@next/next/recommended"
-      ],
-      "plugins": [
-        "react",
-        "@typescript-eslint",
-        "import"
-      ],
-      "rules": {
-        "import/no-unresolved": "error",
-        "import/no-extraneous-dependencies": "off"
-      },
-      "settings": {
-        "react": {
-          "version": "detect"
-        },
-        "import/resolver": {
-          "typescript": {
-            "project": "./src/resources/app/tsconfig.json"
-          },
-          "node": {
-            "extensions": [
-              ".js",
-              ".jsx",
-              ".ts",
-              ".tsx"
-            ]
-          }
-        }
-      },
-      "parserOptions": {
-        "project": "./src/resources/app/tsconfig.json"
-      }
-    },
-    {
-      "files": [
         ".projenrc.ts"
       ],
       "rules": {

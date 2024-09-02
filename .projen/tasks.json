@@ -24,6 +24,33 @@
         }
       ]
     },
+    "build:all": {
+      "name": "build:all",
+      "description": "Build both the main project and the Next.js app",
+      "steps": [
+        {
+          "spawn": "build"
+        },
+        {
+          "spawn": "install:nextjs"
+        },
+        {
+          "spawn": "eslint:nextjs"
+        },
+        {
+          "spawn": "build:nextjs"
+        }
+      ]
+    },
+    "build:nextjs": {
+      "name": "build:nextjs",
+      "steps": [
+        {
+          "exec": "yarn build"
+        }
+      ],
+      "cwd": "src/resources/app"
+    },
     "bundle": {
       "name": "bundle",
       "description": "Prepare assets"
@@ -124,6 +151,15 @@
         }
       ]
     },
+    "eslint:nextjs": {
+      "name": "eslint:nextjs",
+      "steps": [
+        {
+          "exec": "eslint . --ext .ts,.tsx"
+        }
+      ],
+      "cwd": "src/resources/app"
+    },
     "install": {
       "name": "install",
       "description": "Install project dependencies and update lockfile (non-frozen)",
@@ -141,6 +177,15 @@
           "exec": "yarn install --check-files --frozen-lockfile"
         }
       ]
+    },
+    "install:nextjs": {
+      "name": "install:nextjs",
+      "steps": [
+        {
+          "exec": "yarn install"
+        }
+      ],
+      "cwd": "src/resources/app"
     },
     "package": {
       "name": "package",
@@ -188,15 +233,13 @@
     },
     "upgrade:all": {
       "name": "upgrade:all",
+      "description": "Upgrade dependencies for both the main project and the Next.js app",
       "steps": [
         {
-          "exec": "npx projen upgrade"
+          "spawn": "upgrade:projen"
         },
         {
           "spawn": "upgrade:nextjs"
-        },
-        {
-          "exec": "cd src/resources/app && yarn upgrade --latest && cd ../../.."
         }
       ]
     },
@@ -204,7 +247,19 @@
       "name": "upgrade:nextjs",
       "steps": [
         {
-          "exec": "cd src/resources/app && yarn upgrade --latest && yarn add next@latest react@latest react-dom@latest && yarn add --dev @types/react@latest @types/react-dom@latest @types/node@latest && cd ../../.."
+          "exec": "cd src/resources/app && yarn upgrade --latest && cd ../../.."
+        }
+      ]
+    },
+    "upgrade:projen": {
+      "name": "upgrade:projen",
+      "description": "Upgrade projen dependencies",
+      "steps": [
+        {
+          "exec": "yarn upgrade projen @projen/awscdk-app-ts"
+        },
+        {
+          "exec": "npx projen"
         }
       ]
     },

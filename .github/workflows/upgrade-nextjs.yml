@@ -26,7 +26,7 @@ jobs:
         if: steps.git-check.outputs.changes == 'true'
         uses: peter-evans/create-pull-request@v6
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.PROJEN_GITHUB_TOKEN }}
           commit-message: "chore: upgrade Next.js app dependencies"
           branch: deps/upgrade-nextjs
           title: "chore: upgrade Next.js app dependencies"

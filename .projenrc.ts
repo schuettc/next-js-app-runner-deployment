@@ -1,6 +1,6 @@
 const { awscdk } = require('projen');
-const { UpgradeDependenciesSchedule } = require('projen/lib/javascript');
 const { JobPermission } = require('projen/lib/github/workflows-model');
+const { UpgradeDependenciesSchedule } = require('projen/lib/javascript');
 const AUTOMATION_TOKEN = 'PROJEN_GITHUB_TOKEN';
 
 const project = new awscdk.AwsCdkTypeScriptApp({

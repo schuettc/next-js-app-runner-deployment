@@ -1,32 +1,39 @@
 const { awscdk } = require('projen');
 const { JobPermission } = require('projen/lib/github/workflows-model');
 const { UpgradeDependenciesSchedule } = require('projen/lib/javascript');
-const AUTOMATION_TOKEN = 'PROJEN_GITHUB_TOKEN';
 
 const project = new awscdk.AwsCdkTypeScriptApp({
   cdkVersion: '2.118.0',
-  license: 'MIT-0',
-  copyrightOwner: 'Court Schuett',
-  appEntrypoint: 'next-js-app-runner-deployment.ts',
-  jest: false,
+  defaultReleaseBranch: 'main',
+  name: 'next-js-app-runner-deployment',
   projenrcTs: true,
+  appEntrypoint: 'next-js-app-runner-deployment.ts',
+
+  // Dependency upgrade configuration
   depsUpgradeOptions: {
     workflowOptions: {
       schedule: UpgradeDependenciesSchedule.WEEKLY,
     },
     tasks: ['upgrade:all'],
   },
-  autoApproveOptions: {
-    secret: 'GITHUB_TOKEN',
-    allowedUsernames: ['schuettc'],
+
+  // GitHub Actions configuration
+  github: true,
+  githubOptions: {
+    pullRequestLint: false,
   },
-  autoApproveUpgrades: true,
-  projenUpgradeSecret: 'PROJEN_GITHUB_TOKEN',
-  defaultReleaseBranch: 'main',
-  name: 'next-js-app-runner-deployment',
+
+  // Other project configurations
   deps: ['dotenv'],
+  devDeps: [
+    'eslint-plugin-react',
+    '@typescript-eslint/eslint-plugin',
+    'eslint-plugin-react-hooks',
+    '@next/eslint-plugin-next',
+  ],
 });
 
+// Add custom tasks
 project.addTask('upgrade:nextjs', {
   exec: [
     'cd src/resources/app',
@@ -41,64 +48,26 @@ project.addTask('upgrade:all', {
   exec: 'npx projen upgrade && yarn upgrade:nextjs',
 });
 
-// Add a new workflow for upgrading the Next.js app
-const upgradeNextjs = project.github?.addWorkflow('upgrade-nextjs');
-upgradeNextjs?.on({
-  schedule: [{ cron: '0 5 * * 1' }], // Run at 5:00 AM every Monday
-  workflow_dispatch: {}, // Allow manual triggering
-});
-
-upgradeNextjs?.addJobs({
-  upgrade: {
-    runsOn: ['ubuntu-latest'],
-    permissions: {
-      contents: JobPermission.WRITE,
-      pullRequests: JobPermission.WRITE,
-    },
-    steps: [
-      { uses: 'actions/checkout@v4' },
-      {
-        uses: 'actions/setup-node@v4',
-        with: {
-          'node-version': '18',
-        },
-      },
-      { run: 'yarn install --frozen-lockfile' },
-      {
-        name: 'Upgrade Next.js app dependencies',
-        run: 'yarn upgrade:nextjs',
-      },
-      {
-        name: 'Check for changes',
-        id: 'git-check',
-        run: 'git diff --exit-code || echo "changes=true" >> $GITHUB_OUTPUT',
-      },
-      {
-        name: 'Create Pull Request',
-        if: "steps.git-check.outputs.changes == 'true'",
-        uses: 'peter-evans/create-pull-request@v6',
-        with: {
-          'token': '${{ secrets.PROJEN_GITHUB_TOKEN }}',
-          'commit-message': 'chore: upgrade Next.js app dependencies',
-          'branch': 'deps/upgrade-nextjs',
-          'title': 'chore: upgrade Next.js app dependencies',
-          'body': 'This PR upgrades the dependencies for the Next.js app.',
-          'labels': 'dependencies,nextjs',
-        },
-      },
+// Configure ESLint for Next.js
+const eslint = project.eslint;
+if (eslint) {
+  eslint.addOverride({
+    files: ['src/resources/app/src/**/*.ts', 'src/resources/app/src/**/*.tsx'],
+    extends: [
+      'plugin:react/recommended',
+      'plugin:@typescript-eslint/recommended',
+      'plugin:@next/next/recommended',
     ],
-  },
-});
-
-const nextAppPackageJson = project.tryFindObjectFile(
-  'src/resources/app/package.json',
-);
-if (nextAppPackageJson) {
-  nextAppPackageJson.addOverride('resolutions', {
-    '@types/react': '^18',
+    plugins: ['react', '@typescript-eslint'],
+    settings: {
+      react: {
+        version: 'detect',
+      },
+    },
   });
 }
 
+// Add deployment workflow
 const deploy = project.github?.addWorkflow('deploy');
 deploy?.on({
   push: {
@@ -124,10 +93,6 @@ deploy?.addJobs({
       },
       { run: 'yarn install --frozen-lockfile' },
       {
-        name: 'Install dependencies',
-        run: 'yarn install --frozen-lockfile',
-      },
-      {
         uses: 'aws-actions/configure-aws-credentials@v4',
         with: {
           'aws-access-key-id': '${{ secrets.AWS_ACCESS_KEY_ID }}',
@@ -135,11 +100,10 @@ deploy?.addJobs({
           'aws-region': '${{ secrets.AWS_REGION }}',
         },
       },
-      {
-        run: 'npx cdk deploy --require-approval never',
-      },
+      { run: 'npx cdk deploy --require-approval never' },
     ],
   },
 });
 
+// Synthesize the project
 project.synth();

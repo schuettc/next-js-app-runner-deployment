@@ -224,6 +224,26 @@
   "overrides": [
     {
       "files": [
+        "src/resources/app/src/**/*.ts",
+        "src/resources/app/src/**/*.tsx"
+      ],
+      "extends": [
+        "plugin:react/recommended",
+        "plugin:@typescript-eslint/recommended",
+        "plugin:@next/next/recommended"
+      ],
+      "plugins": [
+        "react",
+        "@typescript-eslint"
+      ],
+      "settings": {
+        "react": {
+          "version": "detect"
+        }
+      }
+    },
+    {
+      "files": [
         ".projenrc.ts"
       ],
       "rules": {

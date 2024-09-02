@@ -1,6 +1,14 @@
 {
   "dependencies": [
     {
+      "name": "@next/eslint-plugin-next",
+      "type": "build"
+    },
+    {
+      "name": "@types/jest",
+      "type": "build"
+    },
+    {
       "name": "@types/node",
       "version": "^18",
       "type": "build"
@@ -33,12 +41,33 @@
       "type": "build"
     },
     {
+      "name": "eslint-plugin-react",
+      "type": "build"
+    },
+    {
+      "name": "eslint-plugin-react-hooks",
+      "type": "build"
+    },
+    {
       "name": "eslint",
       "version": "^8",
       "type": "build"
     },
     {
+      "name": "jest",
+      "type": "build"
+    },
+    {
+      "name": "jest-junit",
+      "version": "^15",
+      "type": "build"
+    },
+    {
       "name": "projen",
+      "type": "build"
+    },
+    {
+      "name": "ts-jest",
       "type": "build"
     },
     {

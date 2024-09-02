@@ -59,6 +59,16 @@ project.addTask('upgrade:all', {
   exec: 'npx projen upgrade && yarn upgrade:nextjs',
 });
 
+// Update the Next.js app's package.json
+const nextAppPackageJson = project.tryFindObjectFile(
+  'src/resources/app/package.json',
+);
+if (nextAppPackageJson) {
+  nextAppPackageJson.addOverride('resolutions', {
+    '@types/react': '^18',
+  });
+}
+
 // Create a new GitHub workflow for weekly upgrades
 const workflow = project.github?.addWorkflow('weekly-upgrade');
 workflow?.on({
@@ -100,51 +110,47 @@ workflow?.addJobs({
   },
 });
 
-// Update the Next.js app's package.json
-const nextAppPackageJson = project.tryFindObjectFile(
-  'src/resources/app/package.json',
-);
-if (nextAppPackageJson) {
-  nextAppPackageJson.addOverride('resolutions', {
-    '@types/react': '^18',
-  });
-}
-
-project.github?.addWorkflow('deploy', {
-  on: {
-    push: {
-      branches: ['main'],
-    },
+// Create a new GitHub workflow for deployment
+const deploy = project.github?.addWorkflow('deploy');
+deploy?.on({
+  push: {
+    branches: ['main'],
   },
-  jobs: {
-    deploy: {
-      runsOn: ['ubuntu-latest'],
-      steps: [
-        { uses: 'actions/checkout@v4' },
-        {
-          uses: 'actions/setup-node@v4',
-          with: {
-            'node-version': '18',
-          },
-        },
-        { run: 'yarn install --frozen-lockfile' },
-        {
-          run: 'yarn build',
-          workingDirectory: 'src/resources/app',
-        },
-        {
-          uses: 'aws-actions/configure-aws-credentials@v4',
-          with: {
-            'aws-access-key-id': '${{ secrets.AWS_ACCESS_KEY_ID }}',
-            'aws-secret-access-key': '${{ secrets.AWS_SECRET_ACCESS_KEY }}',
-            'aws-region': '${{ secrets.AWS_REGION }}',
-          },
-        },
-        {
-          run: 'npx cdk deploy --require-approval never',
-        },
-      ],
+  workflow_dispatch: {}, // This allows manual triggering of the workflow
+});
+
+deploy?.addJobs({
+  deploy: {
+    runsOn: ['ubuntu-latest'],
+    permissions: {
+      contents: JobPermission.READ,
+      id_token: JobPermission.WRITE, // Needed for AWS credential provider
     },
+    steps: [
+      { uses: 'actions/checkout@v4' },
+      {
+        uses: 'actions/setup-node@v4',
+        with: {
+          'node-version': '18',
+        },
+      },
+      { run: 'yarn install --frozen-lockfile' },
+      {
+        run: 'yarn build',
+        workingDirectory: 'src/resources/app',
+      },
+      {
+        uses: 'aws-actions/configure-aws-credentials@v4',
+        with: {
+          'aws-access-key-id': '${{ secrets.AWS_ACCESS_KEY_ID }}',
+          'aws-secret-access-key': '${{ secrets.AWS_SECRET_ACCESS_KEY }}',
+          'aws-region': '${{ secrets.AWS_REGION }}',
+        },
+      },
+      {
+        run: 'npx cdk deploy --require-approval never',
+      },
+    ],
   },
 });
 

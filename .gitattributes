@@ -9,7 +9,6 @@
 /.github/workflows/deploy.yml linguist-generated
 /.github/workflows/pull-request-lint.yml linguist-generated
 /.github/workflows/upgrade.yml linguist-generated
-/.github/workflows/weekly-upgrade.yml linguist-generated
 /.gitignore linguist-generated
 /.mergify.yml linguist-generated
 /.npmignore linguist-generated

@@ -8,7 +8,6 @@
     ".github/workflows/deploy.yml",
     ".github/workflows/pull-request-lint.yml",
     ".github/workflows/upgrade.yml",
-    ".github/workflows/weekly-upgrade.yml",
     ".gitignore",
     ".mergify.yml",
     ".npmignore",

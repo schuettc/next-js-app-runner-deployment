@@ -19,6 +19,7 @@
     },
     {
       "name": "@typescript-eslint/eslint-plugin",
+      "version": "^7",
       "type": "build"
     },
     {

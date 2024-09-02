@@ -40,8 +40,6 @@
     "*.generated.ts",
     "coverage",
     "!.projenrc.ts",
-    "!projenrc/**/*.ts",
-    "!.projenrc.ts",
     "!projenrc/**/*.ts"
   ],
   "rules": {
@@ -263,15 +261,6 @@
       },
       "parserOptions": {
         "project": "./src/resources/app/tsconfig.json"
-      }
-    },
-    {
-      "files": [
-        ".projenrc.ts"
-      ],
-      "rules": {
-        "@typescript-eslint/no-require-imports": "off",
-        "import/no-extraneous-dependencies": "off"
       }
     },
     {

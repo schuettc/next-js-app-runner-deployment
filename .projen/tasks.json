@@ -24,33 +24,6 @@
         }
       ]
     },
-    "build:all": {
-      "name": "build:all",
-      "description": "Build both the main project and the Next.js app",
-      "steps": [
-        {
-          "spawn": "build"
-        },
-        {
-          "spawn": "install:nextjs"
-        },
-        {
-          "spawn": "eslint:nextjs"
-        },
-        {
-          "spawn": "build:nextjs"
-        }
-      ]
-    },
-    "build:nextjs": {
-      "name": "build:nextjs",
-      "steps": [
-        {
-          "exec": "yarn build"
-        }
-      ],
-      "cwd": "src/resources/app"
-    },
     "bundle": {
       "name": "bundle",
       "description": "Prepare assets"
@@ -151,15 +124,6 @@
         }
       ]
     },
-    "eslint:nextjs": {
-      "name": "eslint:nextjs",
-      "steps": [
-        {
-          "exec": "eslint . --ext .ts,.tsx"
-        }
-      ],
-      "cwd": "src/resources/app"
-    },
     "install": {
       "name": "install",
       "description": "Install project dependencies and update lockfile (non-frozen)",
@@ -178,15 +142,6 @@
         }
       ]
     },
-    "install:nextjs": {
-      "name": "install:nextjs",
-      "steps": [
-        {
-          "exec": "yarn install"
-        }
-      ],
-      "cwd": "src/resources/app"
-    },
     "package": {
       "name": "package",
       "description": "Creates the distribution package"
@@ -199,10 +154,6 @@
           "spawn": "synth:silent"
         }
       ]
-    },
-    "post-upgrade": {
-      "name": "post-upgrade",
-      "description": "Runs after upgrading dependencies"
     },
     "pre-compile": {
       "name": "pre-compile",
@@ -232,30 +183,6 @@
       "steps": [
         {
           "spawn": "eslint"
-        }
-      ]
-    },
-    "upgrade": {
-      "name": "upgrade",
-      "description": "upgrade dependencies",
-      "env": {
-        "CI": "0"
-      },
-      "steps": [
-        {
-          "exec": "npx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=@next/eslint-plugin-next,@types/react,@types/react-dom,@typescript-eslint/eslint-plugin,esbuild,eslint-import-resolver-typescript,eslint-plugin-import,eslint-plugin-react,eslint-plugin-react-hooks,projen,ts-node,typescript,dotenv,next,react,react-dom"
-        },
-        {
-          "exec": "yarn install --check-files"
-        },
-        {
-          "exec": "yarn upgrade @next/eslint-plugin-next @types/node @types/react @types/react-dom @typescript-eslint/eslint-plugin @typescript-eslint/parser aws-cdk esbuild eslint-import-resolver-typescript eslint-plugin-import eslint-plugin-react eslint-plugin-react-hooks eslint projen ts-node typescript aws-cdk-lib constructs dotenv next react react-dom"
-        },
-        {
-          "exec": "npx projen"
-        },
-        {
-          "spawn": "post-upgrade"
         }
       ]
     },

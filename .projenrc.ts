@@ -1,6 +1,7 @@
 const { awscdk } = require('projen');
 const { JobPermission } = require('projen/lib/github/workflows-model');
 const { UpgradeDependenciesSchedule } = require('projen/lib/javascript');
+const { IgnoreFile } = require('projen/lib/ignore-file');
 
 const project = new awscdk.AwsCdkTypeScriptApp({
   cdkVersion: '2.118.0',
@@ -32,6 +33,58 @@ const project = new awscdk.AwsCdkTypeScriptApp({
     '@next/eslint-plugin-next',
   ],
 });
+
+// Update the root .gitignore
+const gitignore = project.gitignore;
+gitignore.addPatterns(
+  // Next.js
+  '.next',
+  'out',
+
+  // Build outputs
+  'dist',
+  'build',
+  '*.tsbuildinfo',
+
+  // Logs
+  'npm-debug.log*',
+  'yarn-debug.log*',
+  'yarn-error.log*',
+
+  // IDE
+  '.vscode/',
+  '.idea/',
+
+  // OS
+  '.DS_Store',
+  'Thumbs.db',
+
+  // Environment variables
+  '.env*.local',
+
+  // Vercel
+  '.vercel',
+);
+
+// Create a separate .gitignore for the Next.js app
+const nextAppGitignore = new IgnoreFile(
+  project,
+  'src/resources/app/.gitignore',
+);
+nextAppGitignore.addPatterns(
+  '/.next/',
+  '/out/',
+  '/build',
+  '.DS_Store',
+  '*.pem',
+  'npm-debug.log*',
+  'yarn-debug.log*',
+  'yarn-error.log*',
+  '.env*.local',
+  '.vercel',
+  '*.tsbuildinfo',
+  'next-env.d.ts',
+);
 
 // Add custom tasks
 project.addTask('upgrade:nextjs', {

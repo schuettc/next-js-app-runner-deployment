@@ -14,6 +14,7 @@
     ".projen/tasks.json",
     "cdk.json",
     "LICENSE",
+    "src/resources/app/.gitignore",
     "tsconfig.dev.json",
     "tsconfig.json"
   ],

@@ -27,9 +27,9 @@
   },
   "include": [
     "src/**/*.ts",
-    "test/**/*.ts",
-    ".projenrc.ts",
-    "projenrc/**/*.ts"
+    "./.projenrc.ts",
+    "client/**/*.ts",
+    "client/**/*.tsx"
   ],
   "exclude": [
     "node_modules"

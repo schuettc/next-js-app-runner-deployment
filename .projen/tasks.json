@@ -234,7 +234,7 @@
       "name": "upgrade:nextjs",
       "steps": [
         {
-          "exec": "cd src/resources/app && yarn upgrade-interactive --latest"
+          "exec": "cd src/resources/app && yarn upgrade --latest"
         }
       ]
     },

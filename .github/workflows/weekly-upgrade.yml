@@ -17,8 +17,17 @@ jobs:
         with:
           node-version: "18"
       - run: yarn install --frozen-lockfile
-      - run: npx projen upgrade:all
+      - name: Upgrade CDK project dependencies
+        run: npx projen upgrade
+        continue-on-error: true
+      - name: Upgrade Next.js app dependencies
+        run: yarn upgrade:nextjs
+        continue-on-error: true
+      - name: Check for changes
+        id: git-check
+        run: git diff --exit-code || echo "changes=true" >> $GITHUB_OUTPUT
       - name: Create Pull Request
+        if: steps.git-check.outputs.changes == 'true'
         uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}

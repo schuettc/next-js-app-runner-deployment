@@ -47,19 +47,14 @@ project.eslint.addOverride({
   },
 });
 
-// Add new configurations below this line
-
-// Add a custom task to upgrade Next.js app dependencies
 project.addTask('upgrade:nextjs', {
-  exec: 'cd src/resources/app && yarn upgrade-interactive --latest',
+  exec: 'cd src/resources/app && yarn upgrade --latest',
 });
 
-// Add a custom task to run both CDK and Next.js upgrades
 project.addTask('upgrade:all', {
   exec: 'npx projen upgrade && yarn upgrade:nextjs',
 });
 
-// Update the Next.js app's package.json
 const nextAppPackageJson = project.tryFindObjectFile(
   'src/resources/app/package.json',
 );
@@ -69,7 +64,6 @@ if (nextAppPackageJson) {
   });
 }
 
-// Create a new GitHub workflow for weekly upgrades
 const workflow = project.github?.addWorkflow('weekly-upgrade');
 workflow?.on({
   schedule: [{ cron: '0 5 * * 1' }], // Run at 5:00 AM every Monday
@@ -92,9 +86,24 @@ workflow?.addJobs({
         },
       },
       { run: 'yarn install --frozen-lockfile' },
-      { run: 'npx projen upgrade:all' },
+      {
+        name: 'Upgrade CDK project dependencies',
+        run: 'npx projen upgrade',
+        continueOnError: true,
+      },
+      {
+        name: 'Upgrade Next.js app dependencies',
+        run: 'yarn upgrade:nextjs',
+        continueOnError: true,
+      },
+      {
+        name: 'Check for changes',
+        id: 'git-check',
+        run: 'git diff --exit-code || echo "changes=true" >> $GITHUB_OUTPUT',
+      },
       {
         name: 'Create Pull Request',
+        if: "steps.git-check.outputs.changes == 'true'",
         uses: 'peter-evans/create-pull-request@v6',
         with: {
           'token': '${{ secrets.GITHUB_TOKEN }}',
@@ -110,13 +119,12 @@ workflow?.addJobs({
   },
 });
 
-// Create a new GitHub workflow for deployment
 const deploy = project.github?.addWorkflow('deploy');
 deploy?.on({
   push: {
     branches: ['main'],
   },
-  workflow_dispatch: {}, // This allows manual triggering of the workflow
+  workflow_dispatch: {},
 });
 
 deploy?.addJobs({
@@ -124,7 +132,7 @@ deploy?.addJobs({
     runsOn: ['ubuntu-latest'],
     permissions: {
       contents: JobPermission.READ,
-      id_token: JobPermission.WRITE, // Needed for AWS credential provider
+      id_token: JobPermission.WRITE,
     },
     steps: [
       { uses: 'actions/checkout@v4' },

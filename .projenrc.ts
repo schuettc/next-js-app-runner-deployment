@@ -134,17 +134,6 @@ deploy?.addJobs({
           'node-version': '18',
         },
       },
-      { run: 'yarn install --frozen-lockfile' },
-      {
-        name: 'Install Next.js app dependencies',
-        run: 'yarn install --frozen-lockfile',
-        workingDirectory: 'src/resources/app',
-      },
-      {
-        name: 'Build Next.js app',
-        run: 'yarn build',
-        workingDirectory: 'src/resources/app',
-      },
       {
         uses: 'aws-actions/configure-aws-credentials@v4',
         with: {

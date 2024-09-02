@@ -40,6 +40,8 @@
     "*.generated.ts",
     "coverage",
     "!.projenrc.ts",
+    "!projenrc/**/*.ts",
+    "!.projenrc.ts",
     "!projenrc/**/*.ts"
   ],
   "rules": {
@@ -234,12 +236,42 @@
       ],
       "plugins": [
         "react",
-        "@typescript-eslint"
+        "@typescript-eslint",
+        "import"
       ],
+      "rules": {
+        "import/no-unresolved": "error",
+        "import/no-extraneous-dependencies": "off"
+      },
       "settings": {
         "react": {
           "version": "detect"
+        },
+        "import/resolver": {
+          "typescript": {
+            "project": "./src/resources/app/tsconfig.json"
+          },
+          "node": {
+            "extensions": [
+              ".js",
+              ".jsx",
+              ".ts",
+              ".tsx"
+            ]
+          }
         }
+      },
+      "parserOptions": {
+        "project": "./src/resources/app/tsconfig.json"
+      }
+    },
+    {
+      "files": [
+        ".projenrc.ts"
+      ],
+      "rules": {
+        "@typescript-eslint/no-require-imports": "off",
+        "import/no-extraneous-dependencies": "off"
       }
     },
     {

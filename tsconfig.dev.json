@@ -29,6 +29,8 @@
     "src/**/*.ts",
     "test/**/*.ts",
     ".projenrc.ts",
+    "src/resources/app/src/**/*.ts",
+    "src/resources/app/src/**/*.tsx",
     "projenrc/**/*.ts"
   ],
   "exclude": [

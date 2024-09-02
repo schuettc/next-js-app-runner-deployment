@@ -24,6 +24,36 @@
         }
       ]
     },
+    "build:all": {
+      "name": "build:all",
+      "description": "Build both the main project and the Next.js app",
+      "steps": [
+        {
+          "spawn": "build"
+        },
+        {
+          "spawn": "install:nextjs"
+        },
+        {
+          "spawn": "eslint:nextjs"
+        },
+        {
+          "spawn": "build:nextjs"
+        },
+        {
+          "spawn": "test"
+        }
+      ]
+    },
+    "build:nextjs": {
+      "name": "build:nextjs",
+      "steps": [
+        {
+          "exec": "yarn build"
+        }
+      ],
+      "cwd": "src/resources/app"
+    },
     "bundle": {
       "name": "bundle",
       "description": "Prepare assets"
@@ -124,6 +154,15 @@
         }
       ]
     },
+    "eslint:nextjs": {
+      "name": "eslint:nextjs",
+      "steps": [
+        {
+          "exec": "eslint . --ext .ts,.tsx"
+        }
+      ],
+      "cwd": "src/resources/app"
+    },
     "install": {
       "name": "install",
       "description": "Install project dependencies and update lockfile (non-frozen)",
@@ -141,6 +180,15 @@
           "exec": "yarn install --check-files --frozen-lockfile"
         }
       ]
+    },
+    "install:nextjs": {
+      "name": "install:nextjs",
+      "steps": [
+        {
+          "exec": "yarn install"
+        }
+      ],
+      "cwd": "src/resources/app"
     },
     "package": {
       "name": "package",
@@ -186,20 +234,7 @@
       "description": "Run tests",
       "steps": [
         {
-          "exec": "jest --passWithNoTests --updateSnapshot",
-          "receiveArgs": true
-        },
-        {
           "spawn": "eslint"
-        }
-      ]
-    },
-    "test:watch": {
-      "name": "test:watch",
-      "description": "Run jest in watch mode",
-      "steps": [
-        {
-          "exec": "jest --watch"
         }
       ]
     },
@@ -211,13 +246,13 @@
       },
       "steps": [
         {
-          "exec": "npx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=@next/eslint-plugin-next,@types/jest,esbuild,eslint-import-resolver-typescript,eslint-plugin-import,eslint-plugin-react,eslint-plugin-react-hooks,jest,projen,ts-jest,ts-node,typescript,dotenv"
+          "exec": "npx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=@next/eslint-plugin-next,@types/react,@types/react-dom,@typescript-eslint/eslint-plugin,esbuild,eslint-import-resolver-typescript,eslint-plugin-import,eslint-plugin-react,eslint-plugin-react-hooks,projen,ts-node,typescript,dotenv,next,react,react-dom"
         },
         {
           "exec": "yarn install --check-files"
         },
         {
-          "exec": "yarn upgrade @next/eslint-plugin-next @types/jest @types/node @typescript-eslint/eslint-plugin @typescript-eslint/parser aws-cdk esbuild eslint-import-resolver-typescript eslint-plugin-import eslint-plugin-react eslint-plugin-react-hooks eslint jest jest-junit projen ts-jest ts-node typescript aws-cdk-lib constructs dotenv"
+          "exec": "yarn upgrade @next/eslint-plugin-next @types/node @types/react @types/react-dom @typescript-eslint/eslint-plugin @typescript-eslint/parser aws-cdk esbuild eslint-import-resolver-typescript eslint-plugin-import eslint-plugin-react eslint-plugin-react-hooks eslint projen ts-node typescript aws-cdk-lib constructs dotenv next react react-dom"
         },
         {
           "exec": "npx projen"
@@ -231,7 +266,13 @@
       "name": "upgrade:all",
       "steps": [
         {
-          "exec": "npx projen upgrade && yarn upgrade:nextjs"
+          "exec": "npx projen upgrade"
+        },
+        {
+          "spawn": "upgrade:nextjs"
+        },
+        {
+          "exec": "cd src/resources/app && yarn upgrade --latest && cd ../../.."
         }
       ]
     },

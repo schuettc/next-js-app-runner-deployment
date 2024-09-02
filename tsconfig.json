@@ -28,7 +28,10 @@
     "target": "ES2019"
   },
   "include": [
-    "src/**/*.ts"
+    "src/**/*.ts",
+    ".projenrc.ts",
+    "src/resources/app/src/**/*.ts",
+    "src/resources/app/src/**/*.tsx"
   ],
   "exclude": []
 }

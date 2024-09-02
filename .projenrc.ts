@@ -1,7 +1,8 @@
 const { awscdk } = require('projen');
 const { JobPermission } = require('projen/lib/github/workflows-model');
-const { UpgradeDependenciesSchedule } = require('projen/lib/javascript');
 const { IgnoreFile } = require('projen/lib/ignore-file');
+const { UpgradeDependenciesSchedule } = require('projen/lib/javascript');
+const { NodePackageManager } = require('projen/lib/javascript');
 
 const project = new awscdk.AwsCdkTypeScriptApp({
   cdkVersion: '2.118.0',
@@ -9,6 +10,7 @@ const project = new awscdk.AwsCdkTypeScriptApp({
   name: 'next-js-app-runner-deployment',
   projenrcTs: true,
   appEntrypoint: 'next-js-app-runner-deployment.ts',
+  packageManager: NodePackageManager.YARN, // Use Yarn as the package manager
 
   // Dependency upgrade configuration
   depsUpgradeOptions: {
@@ -25,14 +27,77 @@ const project = new awscdk.AwsCdkTypeScriptApp({
   },
 
   // Other project configurations
-  deps: ['dotenv'],
+  deps: ['dotenv', 'next', 'react', 'react-dom'],
   devDeps: [
     'eslint-plugin-react',
     '@typescript-eslint/eslint-plugin',
     'eslint-plugin-react-hooks',
     '@next/eslint-plugin-next',
+    'eslint-plugin-import',
+    'eslint-import-resolver-typescript',
+    // Add Next.js dev dependencies here
+    '@types/react',
+    '@types/react-dom',
+    '@types/node',
   ],
+  jest: false, // Add this line to disable Jest
+  eslint: true,
+  tsconfig: {
+    compilerOptions: {
+      // ... existing compiler options ...
+    },
+    include: [
+      'src/**/*.ts',
+      '.projenrc.ts',
+      'src/resources/app/src/**/*.ts',
+      'src/resources/app/src/**/*.tsx',
+    ],
+  },
 });
+
+// Configure ESLint
+const eslint = project.eslint;
+if (eslint) {
+  eslint.addOverride({
+    files: ['src/resources/app/src/**/*.ts', 'src/resources/app/src/**/*.tsx'],
+    extends: [
+      'plugin:react/recommended',
+      'plugin:@typescript-eslint/recommended',
+      'plugin:@next/next/recommended',
+    ],
+    plugins: ['react', '@typescript-eslint', 'import'],
+    rules: {
+      'import/no-unresolved': 'error',
+      'import/no-extraneous-dependencies': 'off', // Disable this rule for Next.js files
+    },
+    settings: {
+      'react': {
+        version: 'detect',
+      },
+      'import/resolver': {
+        typescript: {
+          project: './src/resources/app/tsconfig.json',
+        },
+        node: {
+          extensions: ['.js', '.jsx', '.ts', '.tsx'],
+        },
+      },
+    },
+    parserOptions: {
+      project: './src/resources/app/tsconfig.json',
+    },
+  });
+}
+
+// Add necessary dev dependencies for Next.js ESLint configuration
+project.addDevDeps(
+  'eslint-plugin-react',
+  '@typescript-eslint/eslint-plugin',
+  'eslint-plugin-react-hooks',
+  '@next/eslint-plugin-next',
+  'eslint-plugin-import',
+  'eslint-import-resolver-typescript',
+);
 
 // Update the root .gitignore
 const gitignore = project.gitignore;
@@ -98,27 +163,13 @@ project.addTask('upgrade:nextjs', {
 });
 
 project.addTask('upgrade:all', {
-  exec: 'npx projen upgrade && yarn upgrade:nextjs',
+  name: 'upgrade:all',
+  steps: [
+    { exec: 'npx projen upgrade' },
+    { spawn: 'upgrade:nextjs' },
+    { exec: 'cd src/resources/app && yarn upgrade --latest && cd ../../..' },
+  ],
 });
-
-// Configure ESLint for Next.js
-const eslint = project.eslint;
-if (eslint) {
-  eslint.addOverride({
-    files: ['src/resources/app/src/**/*.ts', 'src/resources/app/src/**/*.tsx'],
-    extends: [
-      'plugin:react/recommended',
-      'plugin:@typescript-eslint/recommended',
-      'plugin:@next/next/recommended',
-    ],
-    plugins: ['react', '@typescript-eslint'],
-    settings: {
-      react: {
-        version: 'detect',
-      },
-    },
-  });
-}
 
 // Add deployment workflow
 const deploy = project.github?.addWorkflow('deploy');
@@ -159,4 +210,81 @@ deploy?.addJobs({
 });
 
 // Synthesize the project
+project.synth();
+
+// Add a custom task to install Next.js app dependencies
+project.addTask('install:nextjs', {
+  cwd: 'src/resources/app',
+  exec: 'yarn install',
+});
+
+// Add a custom task to build the Next.js app
+project.addTask('build:nextjs', {
+  cwd: 'src/resources/app',
+  exec: 'yarn build',
+});
+
+// Add a custom task that runs both the main build and the Next.js build
+project.addTask('build:all', {
+  description: 'Build both the main project and the Next.js app',
+  steps: [
+    { spawn: 'build' },
+    { spawn: 'install:nextjs' },
+    { spawn: 'eslint:nextjs' },
+    { spawn: 'build:nextjs' },
+    { spawn: 'test' },
+  ],
+});
+
+// Update the GitHub workflow to use the new build:all task
+const buildAndTestWorkflow = project.github?.addWorkflow('build-and-test');
+buildAndTestWorkflow?.on({
+  pull_request: {},
+  workflow_dispatch: {},
+});
+
+buildAndTestWorkflow?.addJobs({
+  build: {
+    runsOn: ['ubuntu-latest'],
+    permissions: {
+      contents: JobPermission.READ,
+      id_token: JobPermission.WRITE,
+    },
+    steps: [
+      { uses: 'actions/checkout@v4' },
+      { uses: 'actions/setup-node@v4', with: { 'node-version': '18' } },
+      { run: 'yarn install --frozen-lockfile' },
+      { run: 'npx projen build:all' },
+    ],
+  },
+});
+
+// ... rest of your configuration ...
+
+// Create a separate ESLint configuration for the Next.js app
+// const nextAppEslint = new JsonFile(project, 'src/resources/app/.eslintrc.json', {
+//   obj: {
+//     extends: [
+//       'next/core-web-vitals',
+//       'plugin:@typescript-eslint/recommended',
+//       'plugin:react/recommended',
+//     ],
+//     plugins: ['@typescript-eslint', 'react'],
+//     rules: {
+//       'import/no-extraneous-dependencies': 'off',
+//       'react/react-in-jsx-scope': 'off',
+//     },
+//     settings: {
+//       react: {
+//         version: 'detect',
+//       },
+//     },
+//   },
+// });
+
+project.addTask('eslint:nextjs', {
+  cwd: 'src/resources/app',
+  exec: 'eslint . --ext .ts,.tsx',
+});
+
 project.synth();

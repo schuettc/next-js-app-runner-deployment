@@ -45,97 +45,24 @@ const project = new awscdk.AwsCdkTypeScriptApp({
   },
 });
 
-// // Configure ESLint
-// const eslint = project.eslint;
-// if (eslint) {
-//   eslint.addOverride({
-//     files: ['src/resources/app/src/**/*.ts', 'src/resources/app/src/**/*.tsx'],
-//     extends: [
-//       'plugin:react/recommended',
-//       'plugin:@typescript-eslint/recommended',
-//       'plugin:@next/next/recommended',
-//     ],
-//     plugins: ['react', '@typescript-eslint', 'import'],
-//     parser: '@typescript-eslint/parser',
-//     rules: {
-//       'import/no-unresolved': 'error',
-//       'import/no-extraneous-dependencies': 'off', // Disable this rule for Next.js files
-// '@typescript-eslint/indent': ['error', 2],
-// '@typescript-eslint/member-delimiter-style': [
-//   'error',
-//   {
-//     multiline: {
-//       delimiter: 'semi',
-//       requireLast: true,
-//     },
-//     singleline: {
-//       delimiter: 'semi',
-//       requireLast: false,
-//     },
-//   },
-// ],
-// '@next/next/no-html-link-for-pages': [
-//   'error',
-//   'src/resources/app/src/pages',
-// ],
-//     },
-//     settings: {
-//       'react': {
-//         version: 'detect',
-//       },
-//       'import/resolver': {
-//         typescript: {
-//           project: './src/resources/app/tsconfig.json',
-//         },
-//         node: {
-//           extensions: ['.js', '.jsx', '.ts', '.tsx'],
-//         },
-//       },
-//       'next': {
-//         rootDir: 'src/resources/app',
-//       },
-//     },
-//     parserOptions: {
-//       project: './src/resources/app/tsconfig.json',
-//       ecmaVersion: 2018,
-//       sourceType: 'module',
-//     },
-//   });
-// }
-
-// Update the root .gitignore
 const gitignore = project.gitignore;
 gitignore.addPatterns(
-  // Next.js
   '.next',
   'out',
-
-  // Build outputs
   'dist',
   'build',
   '*.tsbuildinfo',
-
-  // Logs
   'npm-debug.log*',
   'yarn-debug.log*',
   'yarn-error.log*',
-
-  // IDE
   '.vscode/',
   '.idea/',
-
-  // OS
   '.DS_Store',
   'Thumbs.db',
-
-  // Environment variables
   '.env*.local',
-
-  // Vercel
   '.vercel',
 );
 
-// Create a separate .gitignore for the Next.js app
 const nextAppGitignore = new IgnoreFile(
   project,
   'src/resources/app/.gitignore',
@@ -155,7 +82,6 @@ nextAppGitignore.addPatterns(
   'next-env.d.ts',
 );
 
-// Add custom tasks
 project.addTask('upgrade:nextjs', {
   exec: ['cd src/resources/app', 'yarn upgrade --latest', 'cd ../../..'].join(
     ' && ',
@@ -168,7 +94,6 @@ project.addTask('upgrade:all', {
   steps: [{ spawn: 'upgrade:projen' }, { spawn: 'upgrade:nextjs' }],
 });
 
-// Add deployment workflow
 const deploy = project.github?.addWorkflow('deploy');
 deploy?.on({
   push: {
@@ -206,7 +131,7 @@ deploy?.addJobs({
   },
 });
 
-// Add upgrade workflow
+
 const upgradeWorkflow = project.github?.addWorkflow('upgrade');
 upgradeWorkflow?.on({
   schedule: [{ cron: '0 0 * * 1' }],

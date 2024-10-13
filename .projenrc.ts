@@ -95,11 +95,9 @@ gitignore.addPatterns(
   '.DS_Store',
   'Thumbs.db',
   '.env*.local',
-  '.env',
   '.vercel',
 );
 
-// Create a separate .gitignore for the Next.js app
 const nextAppGitignore = new IgnoreFile(
   project,
   'src/resources/app/.gitignore',

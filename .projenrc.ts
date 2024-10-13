@@ -11,11 +11,7 @@ const project = new awscdk.AwsCdkTypeScriptApp({
   projenrcTs: true,
   appEntrypoint: 'next-js-app-runner-deployment.ts',
   packageManager: NodePackageManager.YARN, // Use Yarn as the package manager
-
-  // Disable the default upgrade workflow
   depsUpgrade: false,
-
-  // Other project configurations
   deps: ['dotenv', 'next', 'react', 'react-dom'],
   devDeps: [
     'eslint-plugin-react',
@@ -25,7 +21,7 @@ const project = new awscdk.AwsCdkTypeScriptApp({
     '@next/eslint-plugin-next',
     'eslint-plugin-import',
     'eslint-import-resolver-typescript',
-    // Add Next.js dev dependencies here
+    '@types/aws-lambda',
     '@types/react',
     '@types/react-dom',
     '@types/node',
@@ -33,9 +29,6 @@ const project = new awscdk.AwsCdkTypeScriptApp({
   jest: false, // Add this line to disable Jest
   eslint: true,
   tsconfig: {
-    compilerOptions: {
-      // ... existing compiler options ...
-    },
     include: [
       'src/**/*.ts',
       '.projenrc.ts',
@@ -45,6 +38,48 @@ const project = new awscdk.AwsCdkTypeScriptApp({
   },
 });
 
+// Configure ESLint
+const eslint = project.eslint;
+if (eslint) {
+  eslint.addOverride({
+    files: [
+      'src/resources/app/src/**/*.ts',
+      'src/resources/app/src/**/*.tsx',
+      'src/**/*.ts',
+    ],
+    extends: [
+      'plugin:react/recommended',
+      'plugin:@typescript-eslint/recommended',
+      'plugin:@next/next/recommended',
+    ],
+    plugins: ['react', '@typescript-eslint', 'import'],
+    parser: '@typescript-eslint/parser',
+    rules: {
+      'import/no-unresolved': 'error',
+      'import/no-extraneous-dependencies': 'off', // Disable this rule for Next.js files
+      '@typescript-eslint/indent': ['error', 2],
+      '@typescript-eslint/member-delimiter-style': [
+        'error',
+        {
+          multiline: {
+            delimiter: 'semi',
+            requireLast: true,
+          },
+          singleline: {
+            delimiter: 'semi',
+            requireLast: false,
+          },
+        },
+      ],
+      '@next/next/no-html-link-for-pages': [
+        'error',
+        'src/resources/app/src/pages',
+      ],
+    },
+  });
+}
+
+// Update the root .gitignore
 const gitignore = project.gitignore;
 gitignore.addPatterns(
   '.next',
@@ -131,7 +166,6 @@ deploy?.addJobs({
   },
 });
 
-
 const upgradeWorkflow = project.github?.addWorkflow('upgrade');
 upgradeWorkflow?.on({
   schedule: [{ cron: '0 0 * * 1' }],
@@ -167,19 +201,16 @@ upgradeWorkflow?.addJobs({
   },
 });
 
-// Add a custom task to install Next.js app dependencies
 project.addTask('install:nextjs', {
   cwd: 'src/resources/app',
   exec: 'yarn install',
 });
 
-// Add a custom task to build the Next.js app
 project.addTask('build:nextjs', {
   cwd: 'src/resources/app',
   exec: 'yarn build',
 });
 
-// Add a custom task that runs both the main build and the Next.js build
 project.addTask('build:all', {
   description: 'Build both the main project and the Next.js app',
   steps: [
@@ -203,5 +234,4 @@ project.addTask('upgrade:projen', {
   ],
 });
 
-// Synthesize the project
 project.synth();

@@ -224,6 +224,49 @@
   "overrides": [
     {
       "files": [
+        "src/resources/app/src/**/*.ts",
+        "src/resources/app/src/**/*.tsx",
+        "src/**/*.ts"
+      ],
+      "extends": [
+        "plugin:react/recommended",
+        "plugin:@typescript-eslint/recommended",
+        "plugin:@next/next/recommended"
+      ],
+      "plugins": [
+        "react",
+        "@typescript-eslint",
+        "import"
+      ],
+      "parser": "@typescript-eslint/parser",
+      "rules": {
+        "import/no-unresolved": "error",
+        "import/no-extraneous-dependencies": "off",
+        "@typescript-eslint/indent": [
+          "error",
+          2
+        ],
+        "@typescript-eslint/member-delimiter-style": [
+          "error",
+          {
+            "multiline": {
+              "delimiter": "semi",
+              "requireLast": true
+            },
+            "singleline": {
+              "delimiter": "semi",
+              "requireLast": false
+            }
+          }
+        ],
+        "@next/next/no-html-link-for-pages": [
+          "error",
+          "src/resources/app/src/pages"
+        ]
+      }
+    },
+    {
+      "files": [
         ".projenrc.ts"
       ],
       "rules": {

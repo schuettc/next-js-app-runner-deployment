@@ -1,11 +1,11 @@
-# Use an official Node runtime as the base image, explicitly x86_64
-FROM --platform=linux/amd64 node:18-alpine AS builder
+# Use an official Node runtime as the base image
+FROM node:18-alpine
 
 # Set the working directory in the container
 WORKDIR /app
 
-# Copy package.json, yarn.lock, and tsconfig files
-COPY package.json yarn.lock tsconfig.json tsconfig.dev.json ./
+# Copy package.json and yarn.lock
+COPY package.json yarn.lock ./
 
 # Install dependencies
 RUN yarn install --frozen-lockfile
@@ -16,23 +16,8 @@ COPY . .
 # Build the Next.js app
 RUN yarn build
 
-# Production image, copy all the files and run next
-FROM --platform=linux/amd64 node:18-alpine AS runner
-WORKDIR /app
-
-ENV NODE_ENV=production
-
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
-
-COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/package.json ./package.json
-
-USER nextjs
-
+# Expose the port the app runs on
 EXPOSE 3000
 
-ENV PORT=3000
-
-CMD ["node", "server.js"]
+# Start the app
+CMD ["yarn", "start"]

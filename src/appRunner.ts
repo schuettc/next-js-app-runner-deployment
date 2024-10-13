@@ -46,6 +46,9 @@ export class AppRunnerResources extends Construct {
           imageRepositoryType: 'ECR',
           imageConfiguration: {
             port: '3000',
+            runtimeEnvironmentVariables: [
+              { name: 'HOSTNAME', value: '0.0.0.0' },
+            ],
           },
         },
       },

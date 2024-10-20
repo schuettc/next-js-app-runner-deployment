@@ -31,7 +31,7 @@ export default function Home() {
 
       <div className={styles.center}>
         <Image
-          className={styles.logo}
+          className={styles.image}
           src='/images/ISS.jpg'
           alt='ISS Image'
           width={400}

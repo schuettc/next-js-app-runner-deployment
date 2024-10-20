@@ -39,7 +39,7 @@ export class CloudFrontResources extends Construct {
 
     // Create an ACM certificate
     const certificate = new Certificate(this, 'Certificate', {
-      domainName: props.domainName,
+      domainName: `*.${props.domainName}`,
       validation: CertificateValidation.fromDns(hostedZone),
     });
 
@@ -67,8 +67,8 @@ export class CloudFrontResources extends Construct {
       'LambdaEdgeFunction',
     );
 
-    // Add permission for CloudFront to invoke the Lambda function
-    lambdaEdgeFunction.function.addPermission('InvokeLambdaPermission', {
+    const version = lambdaEdgeFunction.function.currentVersion;
+    version.addPermission('InvokeLambdaPermission', {
       principal: new ServicePrincipal('edgelambda.amazonaws.com'),
       action: 'lambda:InvokeFunction',
     });
@@ -91,7 +91,7 @@ export class CloudFrontResources extends Construct {
           },
         ],
       },
-      domainNames: [props.domainName],
+      domainNames: [props.domainName, `www.${props.domainName}`],
       certificate: certificate,
       httpVersion: HttpVersion.HTTP2,
     });

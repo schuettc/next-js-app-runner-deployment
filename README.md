@@ -14,6 +14,8 @@ The architecture consists of the following components:
 6. AWS CDK to define and deploy the infrastructure
 7. GitHub actions for CI/CD
 
+![Overview](/images/NextJSAppCloudfront.png)
+
 ## Prerequisites
 
 - AWS Account

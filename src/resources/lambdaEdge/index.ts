@@ -1,4 +1,4 @@
-import { CloudFrontRequestEvent, CloudFrontRequestResult } from 'aws-lambda';
+import { CloudFrontRequestEvent, CloudFrontRequestResult } from "aws-lambda";
 
 export const handler = async (
   event: CloudFrontRequestEvent,
@@ -7,7 +7,7 @@ export const handler = async (
   const origin = request.origin?.custom;
 
   if (origin && origin.domainName) {
-    request.headers.host = [{ key: 'Host', value: origin.domainName }];
+    request.headers.host = [{ key: "Host", value: origin.domainName }];
   }
 
   return request;

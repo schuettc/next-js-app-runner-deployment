@@ -16,7 +16,8 @@
     "project": "./tsconfig.dev.json"
   },
   "extends": [
-    "plugin:import/typescript"
+    "plugin:import/typescript",
+    "plugin:prettier/recommended"
   ],
   "settings": {
     "import/parsers": {
@@ -43,102 +44,6 @@
     "!projenrc/**/*.ts"
   ],
   "rules": {
-    "indent": [
-      "off"
-    ],
-    "@typescript-eslint/indent": [
-      "error",
-      2
-    ],
-    "quotes": [
-      "error",
-      "single",
-      {
-        "avoidEscape": true
-      }
-    ],
-    "comma-dangle": [
-      "error",
-      "always-multiline"
-    ],
-    "comma-spacing": [
-      "error",
-      {
-        "before": false,
-        "after": true
-      }
-    ],
-    "no-multi-spaces": [
-      "error",
-      {
-        "ignoreEOLComments": false
-      }
-    ],
-    "array-bracket-spacing": [
-      "error",
-      "never"
-    ],
-    "array-bracket-newline": [
-      "error",
-      "consistent"
-    ],
-    "object-curly-spacing": [
-      "error",
-      "always"
-    ],
-    "object-curly-newline": [
-      "error",
-      {
-        "multiline": true,
-        "consistent": true
-      }
-    ],
-    "object-property-newline": [
-      "error",
-      {
-        "allowAllPropertiesOnSameLine": true
-      }
-    ],
-    "keyword-spacing": [
-      "error"
-    ],
-    "brace-style": [
-      "error",
-      "1tbs",
-      {
-        "allowSingleLine": true
-      }
-    ],
-    "space-before-blocks": [
-      "error"
-    ],
-    "curly": [
-      "error",
-      "multi-line",
-      "consistent"
-    ],
-    "@typescript-eslint/member-delimiter-style": [
-      "error"
-    ],
-    "semi": [
-      "error",
-      "always"
-    ],
-    "max-len": [
-      "error",
-      {
-        "code": 150,
-        "ignoreUrls": true,
-        "ignoreStrings": true,
-        "ignoreTemplateLiterals": true,
-        "ignoreComments": true,
-        "ignoreRegExpLiterals": true
-      }
-    ],
-    "quote-props": [
-      "error",
-      "consistent-as-needed"
-    ],
     "@typescript-eslint/no-require-imports": [
       "error"
     ],
@@ -147,7 +52,7 @@
       {
         "devDependencies": [
           "**/test/**",
-          "**/build-tools/**",
+          "**/projenrc/**",
           ".projenrc.ts",
           "projenrc/**/*.ts"
         ],
@@ -239,6 +144,13 @@
         "import"
       ],
       "parser": "@typescript-eslint/parser",
+      "parserOptions": {
+        "ecmaFeatures": {
+          "jsx": true
+        },
+        "ecmaVersion": 2018,
+        "sourceType": "module"
+      },
       "rules": {
         "import/no-unresolved": "error",
         "import/no-extraneous-dependencies": "off",
@@ -261,8 +173,21 @@
         ],
         "@next/next/no-html-link-for-pages": [
           "error",
-          "src/resources/app/src/pages"
+          "src/resources/app/src/app"
+        ],
+        "react/react-in-jsx-scope": "off",
+        "react/jsx-uses-react": "off",
+        "@typescript-eslint/no-unused-vars": [
+          "error",
+          {
+            "argsIgnorePattern": "^_"
+          }
         ]
+      },
+      "settings": {
+        "react": {
+          "version": "detect"
+        }
       }
     },
     {

@@ -1,7 +1,7 @@
-import { App, CfnOutput, Stack, StackProps } from 'aws-cdk-lib';
-import { Construct } from 'constructs';
-import { config } from 'dotenv';
-import { AppRunnerResources, CloudFrontResources, Route53Resources } from './';
+import { App, CfnOutput, Stack, StackProps } from "aws-cdk-lib";
+import { Construct } from "constructs";
+import { config } from "dotenv";
+import { AppRunnerResources, CloudFrontResources, Route53Resources } from "./";
 
 config();
 
@@ -22,13 +22,13 @@ export class NextJSAppRunnerDeployment extends Stack {
     // Create AppRunner resources first
     const appRunnerResources = new AppRunnerResources(
       this,
-      'AppRunnerResources',
+      "AppRunnerResources",
     );
 
     // Create CloudFront resources using the AppRunner service URL
     const cloudFrontResources = new CloudFrontResources(
       this,
-      'CloudFrontResources',
+      "CloudFrontResources",
       {
         appRunnerServiceUrl: appRunnerResources.service.attrServiceUrl,
         domainName: props.domainName,
@@ -37,17 +37,17 @@ export class NextJSAppRunnerDeployment extends Stack {
     );
 
     // Create Route 53 resources
-    new Route53Resources(this, 'Route53Resources', {
+    new Route53Resources(this, "Route53Resources", {
       domainName: props.domainName,
       hostedZoneId: props.hostedZoneId,
       distribution: cloudFrontResources.distribution,
     });
 
-    new CfnOutput(this, 'CloudfrontURL', {
+    new CfnOutput(this, "CloudfrontURL", {
       value: cloudFrontResources.distribution.domainName,
     });
 
-    new CfnOutput(this, 'WebsiteURL', {
+    new CfnOutput(this, "WebsiteURL", {
       value: `https://${props.domainName}`,
     });
   }
@@ -55,24 +55,24 @@ export class NextJSAppRunnerDeployment extends Stack {
 
 const devEnv = {
   account: process.env.CDK_DEFAULT_ACCOUNT,
-  region: process.env.CDK_DEFAULT_REGION || 'us-east-1',
+  region: process.env.CDK_DEFAULT_REGION || "us-east-1",
 };
 
 const stackProps = {
-  logLevel: process.env.LOG_LEVEL || 'INFO',
-  domainName: process.env.DOMAIN_NAME || '',
-  hostedZoneId: process.env.HOSTED_ZONE_ID || '',
+  logLevel: process.env.LOG_LEVEL || "INFO",
+  domainName: process.env.DOMAIN_NAME || "",
+  hostedZoneId: process.env.HOSTED_ZONE_ID || "",
 };
 
 if (!stackProps.domainName || !stackProps.hostedZoneId) {
   throw new Error(
-    'DOMAIN_NAME and HOSTED_ZONE_ID must be provided in the .env file',
+    "DOMAIN_NAME and HOSTED_ZONE_ID must be provided in the .env file",
   );
 }
 
 const app = new App();
 
-new NextJSAppRunnerDeployment(app, 'NextJSAppRunnerDeployment', {
+new NextJSAppRunnerDeployment(app, "NextJSAppRunnerDeployment", {
   ...stackProps,
   env: devEnv,
 });

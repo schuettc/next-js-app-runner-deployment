@@ -1,7 +1,7 @@
 import {
   Certificate,
   CertificateValidation,
-} from 'aws-cdk-lib/aws-certificatemanager';
+} from "aws-cdk-lib/aws-certificatemanager";
 import {
   Distribution,
   ViewerProtocolPolicy,
@@ -13,12 +13,12 @@ import {
   LambdaEdgeEventType,
   OriginRequestQueryStringBehavior,
   AllowedMethods,
-} from 'aws-cdk-lib/aws-cloudfront';
-import { HttpOrigin } from 'aws-cdk-lib/aws-cloudfront-origins';
-import { ServicePrincipal } from 'aws-cdk-lib/aws-iam';
-import { HostedZone } from 'aws-cdk-lib/aws-route53';
-import { Construct } from 'constructs';
-import { LambdaEdgeFunction } from './lambda';
+} from "aws-cdk-lib/aws-cloudfront";
+import { HttpOrigin } from "aws-cdk-lib/aws-cloudfront-origins";
+import { ServicePrincipal } from "aws-cdk-lib/aws-iam";
+import { HostedZone } from "aws-cdk-lib/aws-route53";
+import { Construct } from "constructs";
+import { LambdaEdgeFunction } from "./lambda";
 
 interface CloudFrontResourcesProps {
   appRunnerServiceUrl: string;
@@ -32,14 +32,14 @@ export class CloudFrontResources extends Construct {
   constructor(scope: Construct, id: string, props: CloudFrontResourcesProps) {
     super(scope, id);
 
-    const hostedZone = HostedZone.fromHostedZoneAttributes(this, 'HostedZone', {
+    const hostedZone = HostedZone.fromHostedZoneAttributes(this, "HostedZone", {
       zoneName: props.domainName,
       hostedZoneId: props.hostedZoneId,
     });
 
     // Create an ACM certificate
-    const certificate = new Certificate(this, 'Certificate', {
-      domainName: props.domainName,
+    const certificate = new Certificate(this, "Certificate", {
+      domainName: `*.${props.domainName}`,
       validation: CertificateValidation.fromDns(hostedZone),
     });
 
@@ -52,11 +52,11 @@ export class CloudFrontResources extends Construct {
     // Create a custom origin request policy
     const customOriginRequestPolicy = new OriginRequestPolicy(
       this,
-      'UserAgentRefererHeadersPolicy',
+      "UserAgentRefererHeadersPolicy",
       {
         headerBehavior: OriginRequestHeaderBehavior.allowList(
-          'User-Agent',
-          'Referer',
+          "User-Agent",
+          "Referer",
         ),
         queryStringBehavior: OriginRequestQueryStringBehavior.all(),
       },
@@ -64,16 +64,16 @@ export class CloudFrontResources extends Construct {
 
     const lambdaEdgeFunction = new LambdaEdgeFunction(
       this,
-      'LambdaEdgeFunction',
+      "LambdaEdgeFunction",
     );
 
-    // Add permission for CloudFront to invoke the Lambda function
-    lambdaEdgeFunction.function.addPermission('InvokeLambdaPermission', {
-      principal: new ServicePrincipal('edgelambda.amazonaws.com'),
-      action: 'lambda:InvokeFunction',
+    const version = lambdaEdgeFunction.function.currentVersion;
+    version.addPermission("InvokeLambdaPermission", {
+      principal: new ServicePrincipal("edgelambda.amazonaws.com"),
+      action: "lambda:InvokeFunction",
     });
 
-    this.distribution = new Distribution(this, 'CloudFrontDistribution', {
+    this.distribution = new Distribution(this, "CloudFrontDistribution", {
       defaultBehavior: {
         origin: appRunnerOrigin,
         viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
@@ -91,7 +91,7 @@ export class CloudFrontResources extends Construct {
           },
         ],
       },
-      domainNames: [props.domainName],
+      domainNames: [props.domainName, `www.${props.domainName}`],
       certificate: certificate,
       httpVersion: HttpVersion.HTTP2,
     });

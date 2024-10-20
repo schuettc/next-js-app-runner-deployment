@@ -1,6 +1,6 @@
-import Image from 'next/image';
-import Link from 'next/link';
-import styles from './page.module.css';
+import Image from "next/image";
+import Link from "next/link";
+import styles from "./page.module.css";
 
 export default function Home() {
   return (
@@ -12,14 +12,14 @@ export default function Home() {
         </p>
         <div>
           <a
-            href='https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app'
-            target='_blank'
-            rel='noopener noreferrer'
+            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
+            target="_blank"
+            rel="noopener noreferrer"
           >
-            By{' '}
+            By{" "}
             <Image
-              src='/vercel.svg'
-              alt='Vercel Logo'
+              src="/vercel.svg"
+              alt="Vercel Logo"
               className={styles.vercelLogo}
               width={100}
               height={24}
@@ -31,9 +31,9 @@ export default function Home() {
 
       <div className={styles.center}>
         <Image
-          className={styles.logo}
-          src='/images/ISS.jpg'
-          alt='ISS Image'
+          className={styles.image}
+          src="/images/ISS.jpg"
+          alt="ISS Image"
           width={400}
           height={300}
           priority
@@ -41,14 +41,14 @@ export default function Home() {
       </div>
 
       <div className={styles.grid}>
-        <Link href='/hello' className={styles.card}>
+        <Link href="/hello" className={styles.card}>
           <h2>
             Hello Page <span>-&gt;</span>
           </h2>
           <p>Visit the Hello page to test API routes.</p>
         </Link>
 
-        <Link href='/posts/1' className={styles.card}>
+        <Link href="/posts/1" className={styles.card}>
           <h2>
             Dynamic Route <span>-&gt;</span>
           </h2>
@@ -56,10 +56,10 @@ export default function Home() {
         </Link>
 
         <a
-          href='https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app'
+          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
           className={styles.card}
-          target='_blank'
-          rel='noopener noreferrer'
+          target="_blank"
+          rel="noopener noreferrer"
         >
           <h2>
             Docs <span>-&gt;</span>
@@ -68,10 +68,10 @@ export default function Home() {
         </a>
 
         <a
-          href='https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app'
+          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
           className={styles.card}
-          target='_blank'
-          rel='noopener noreferrer'
+          target="_blank"
+          rel="noopener noreferrer"
         >
           <h2>
             Learn <span>-&gt;</span>

@@ -8,8 +8,4 @@ services:
     environment:
       - NODE_ENV=production
     volumes:
-      - ./.next:/app/.next
       - ./public:/app/public
-
-volumes:
-  next-cache:
